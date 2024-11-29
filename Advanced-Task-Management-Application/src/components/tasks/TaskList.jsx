@@ -1,4 +1,4 @@
-import { CheckCircle, Trash2, Edit, Search, X, History } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Search, X, History, ChevronRight, ChevronLeft } from 'lucide-react';
 import TaskInput from './TaskInput';
 import { useTask } from '../../hooks/useTask';
 import { useState } from 'react';
@@ -15,13 +15,19 @@ const TaskList = () => {
         editingTask,
         saveEditedTask,
         searchQuery,
-        setSearchQuery
+        setSearchQuery,
+        historySearchQuery,
+        setHistorySearchQuery,
+        filterEditHistory
     } = useTask();
 
     const [editedTitle, setEditedTitle] = useState('');
     const [editedDescription, setEditedDescription] = useState('');
     const [editedPriority, setEditedPriority] = useState('medium');
     const [expandedHistoryTaskId, setExpandedHistoryTaskId] = useState(null);
+    const [historyPage, setHistoryPage] = useState({});
+
+
     const getPriorityColor = (priority) => {
         switch (priority) {
             case 'high': return 'border-red-500';
@@ -66,10 +72,10 @@ const TaskList = () => {
         return dateObj.toLocaleString(undefined, options);
     };
 
-     // Helper function to format edit history entries
-     const formatEditHistoryEntry = (entry) => {
+    // Helper function to format edit history entries
+    const formatEditHistoryEntry = (entry) => {
         const formattedTimestamp = formatDateTime(entry.timestamp);
-        const changeDescriptions = entry.changes.map(change => 
+        const changeDescriptions = entry.changes.map(change =>
             `${change.field}: ${change.oldValue} → ${change.newValue}`
         ).join(', ');
         return `${formattedTimestamp}: ${changeDescriptions}`;
@@ -77,8 +83,109 @@ const TaskList = () => {
 
     const toggleTaskHistory = (taskId) => {
         setExpandedHistoryTaskId(prev => prev === taskId ? null : taskId);
+        // Reset page when opening history
+        setHistoryPage(prev => ({ ...prev, [taskId]: 1 }));
     };
 
+    // Pagination for edit history with search
+    const renderPaginatedHistory = (task) => {
+        const itemsPerPage = 5;
+        const currentPage = historyPage[task.id] || 1;
+
+        // Filter edit history based on search query
+        const filteredHistory = filterEditHistory(task.editHistory || []);
+
+        // Reverse the history to show most recent first
+        const reversedHistory = [...filteredHistory].reverse();
+
+        // Calculate total pages
+        const totalPages = Math.ceil(reversedHistory.length / itemsPerPage);
+
+        // Slice the history for current page
+        const paginatedHistory = reversedHistory.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        );
+
+        // Pagination handlers
+        const goToPrevPage = () => {
+            setHistoryPage(prev => ({
+                ...prev,
+                [task.id]: Math.max(1, (prev[task.id] || 1) - 1)
+            }));
+        };
+
+        const goToNextPage = () => {
+            setHistoryPage(prev => ({
+                ...prev,
+                [task.id]: Math.min(totalPages, (prev[task.id] || 1) + 1)
+            }));
+        };
+        return (
+            <div className="bg-gray-50 p-2 rounded-md mt-2">
+                {/* Edit History Search Input */}
+                <div className="relative mb-2">
+                    <input
+                        type="text"
+                        placeholder="Search edit history..."
+                        value={historySearchQuery}
+                        onChange={(e) => {
+                            setHistorySearchQuery(e.target.value);
+                            // Reset to first page when searching
+                            setHistoryPage(prev => ({ ...prev, [task.id]: 1 }));
+                        }}
+                        className="w-full px-3 py-2 border rounded-md text-xs"
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                </div>
+
+                <h4 className="text-sm font-semibold mb-2">
+                    Edit History
+                    {historySearchQuery && (
+                        <span className="ml-2 text-xs text-gray-500">
+                            ({filteredHistory.length} results)
+                        </span>
+                    )}
+                </h4>
+
+                {paginatedHistory.length > 0 ? (
+                    <ul className="text-xs text-gray-600 space-y-1">
+                        {paginatedHistory.map((entry, index) => (
+                            <li key={index} className="border-b pb-1 last:border-b-0">
+                                {formatEditHistoryEntry(entry)}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-xs text-gray-500 text-center">
+                        No edit history found
+                    </p>
+                )}
+
+                {totalPages > 1 && (
+                    <div className="flex justify-between items-center mt-2 border-t pt-2">
+                        <button
+                            onClick={goToPrevPage}
+                            disabled={currentPage === 1}
+                            className="flex items-center text-xs text-gray-600 disabled:opacity-50"
+                        >
+                            <ChevronLeft size={16} /> Previous
+                        </button>
+                        <span className="text-xs text-gray-500">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages}
+                            className="flex items-center text-xs text-gray-600 disabled:opacity-50"
+                        >
+                            Next <ChevronRight size={16} />
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    };
     return (
         <div className="bg-gray-100 min-h-screen p-6">
             <div className="max-w-2xl mx-auto">
@@ -136,30 +243,20 @@ const TaskList = () => {
                             className={`bg-white shadow-md rounded-lg p-4 mb-3 border-l-4 ${getPriorityColor(task.priority)}`}
                         >
                             {/* Existing task rendering logic */}
-                        {task.editHistory && task.editHistory.length > 0 && (
-                            <div className="mt-2">
-                                <button 
-                                    onClick={() => toggleTaskHistory(task.id)}
-                                    className="text-gray-500 hover:text-gray-700 flex items-center"
-                                >
-                                    <History className="mr-2" /> 
-                                    {expandedHistoryTaskId === task.id ? 'Hide' : 'Show'} Edit History
-                                </button>
-                                
-                                {expandedHistoryTaskId === task.id && (
-                                    <div className="bg-gray-50 p-2 rounded-md mt-2">
-                                        <h4 className="text-sm font-semibold mb-2">Edit History:</h4>
-                                        <ul className="text-xs text-gray-600 space-y-1">
-                                            {task.editHistory.map((entry, index) => (
-                                                <li key={index} className="border-b pb-1 last:border-b-0">
-                                                    {formatEditHistoryEntry(entry)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                            {task.editHistory && task.editHistory.length > 0 && (
+                                <div className="mt-2">
+                                    <button
+                                        onClick={() => toggleTaskHistory(task.id)}
+                                        className="text-gray-500 hover:text-gray-700 flex items-center"
+                                    >
+                                        <History className="mr-2" />
+                                        {expandedHistoryTaskId === task.id ? 'Hide' : 'Show'} Edit History
+                                        <span className="ml-2 text-xs text-gray-400">({task.editHistory.length})</span>
+                                    </button>
+
+                                    {expandedHistoryTaskId === task.id && renderPaginatedHistory(task)}
+                                </div>
+                            )}
                             {editingTask && editingTask.id === task.id ? (
                                 <div>
                                     <input
