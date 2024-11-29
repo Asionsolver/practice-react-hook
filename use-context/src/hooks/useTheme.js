@@ -1,5 +1,6 @@
 import { useContext } from "react"
-import { ThemeContext } from "../context/ThemeContext_simple"
+import { ThemeContext } from "../context/ThemeContext";
+
 
 // 3. Custom Hook for Using Context (Optional but Recommended)
 const useTheme = () => {

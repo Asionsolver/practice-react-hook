@@ -1,14 +1,17 @@
-import ThemeToggler from "./components/ThemeToggler";
-import { ThemeProvider } from "./context/ThemeContext_simple";
+import DashboardPage from "./components/DashboardPage"
+import ThemeSwitcher from "./components/ThemeSwitcher"
+import { ThemeProvider } from "./context/ThemeContext"
 
-export default function App() {
+
+const App = () => {
   return (
-    <ThemeProvider >
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold ">Theme Toggler</h1>
-        <p className="text-gray-500 mb-2">Click the button to toggle the theme</p>
-        <ThemeToggler />
+    <ThemeProvider>
+      <div className="container mx-auto">
+        <ThemeSwitcher />
+        <DashboardPage />
       </div>
     </ThemeProvider>
   )
 }
+
+export default App
