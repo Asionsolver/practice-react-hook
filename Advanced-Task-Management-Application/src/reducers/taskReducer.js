@@ -8,18 +8,31 @@ export const taskReducer = (state, action) => {
                 priority: action.payload.priority,
                 status: 'pending',
                 createdAt: new Date(),
-                lastEditedAt: null  // Add last edited timestamp
+                lastEditedAt: null,  // Add last edited timestamp
+                editHistory: []  // Add edit history array
             }];
         case 'UPDATE_TASK':
-            return state.map(task =>
-                task.id === action.payload.id 
-                    ? { 
-                        ...task, 
+            return state.map(task => {
+                if (task.id === action.payload.id) {
+                    // Prepare the edit log entry
+                    const editEntry = {
+                        timestamp: new Date(),
+                        changes: Object.keys(action.payload.updates).map(key => ({
+                            field: key,
+                            oldValue: task[key],
+                            newValue: action.payload.updates[key]
+                        }))
+                    };
+
+                    return {
+                        ...task,
                         ...action.payload.updates,
-                        lastEditedAt: new Date()  // Update last edited timestamp when task is modified
-                    } 
-                    : task
-            );
+                        lastEditedAt: new Date(),
+                        editHistory: [...(task.editHistory || []), editEntry]
+                    };
+                }
+                return task;
+            });
         case 'DELETE_TASK':
             return state.filter(task => task.id !== action.payload);
         case 'CLEAR_COMPLETED':

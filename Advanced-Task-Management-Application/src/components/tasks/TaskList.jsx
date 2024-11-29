@@ -1,4 +1,4 @@
-import { CheckCircle, Trash2, Edit, Search, X } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Search, X, History } from 'lucide-react';
 import TaskInput from './TaskInput';
 import { useTask } from '../../hooks/useTask';
 import { useState } from 'react';
@@ -21,7 +21,7 @@ const TaskList = () => {
     const [editedTitle, setEditedTitle] = useState('');
     const [editedDescription, setEditedDescription] = useState('');
     const [editedPriority, setEditedPriority] = useState('medium');
-
+    const [expandedHistoryTaskId, setExpandedHistoryTaskId] = useState(null);
     const getPriorityColor = (priority) => {
         switch (priority) {
             case 'high': return 'border-red-500';
@@ -49,24 +49,34 @@ const TaskList = () => {
         });
     };
 
-    // Helper function to format date with both creation and last edited times
-    const formatDateTime = (createdAt, lastEditedAt) => {
-        const formatOptions = {
+    // Helper function to format date in 12-hour format
+    const formatDateTime = (date, includeTime = true) => {
+        if (!date) return '';
+        const dateObj = new Date(date);
+        const options = {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            ...(includeTime && {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            })
         };
+        return dateObj.toLocaleString(undefined, options);
+    };
 
-        const created = new Date(createdAt).toLocaleString(undefined, formatOptions);
+     // Helper function to format edit history entries
+     const formatEditHistoryEntry = (entry) => {
+        const formattedTimestamp = formatDateTime(entry.timestamp);
+        const changeDescriptions = entry.changes.map(change => 
+            `${change.field}: ${change.oldValue} → ${change.newValue}`
+        ).join(', ');
+        return `${formattedTimestamp}: ${changeDescriptions}`;
+    };
 
-        if (lastEditedAt) {
-            const edited = new Date(lastEditedAt).toLocaleString(undefined, formatOptions);
-            return `Created: ${created} | Edited: ${edited}`;
-        }
-
-        return `Created: ${created}`;
+    const toggleTaskHistory = (taskId) => {
+        setExpandedHistoryTaskId(prev => prev === taskId ? null : taskId);
     };
 
     return (
@@ -125,6 +135,31 @@ const TaskList = () => {
                             key={task.id}
                             className={`bg-white shadow-md rounded-lg p-4 mb-3 border-l-4 ${getPriorityColor(task.priority)}`}
                         >
+                            {/* Existing task rendering logic */}
+                        {task.editHistory && task.editHistory.length > 0 && (
+                            <div className="mt-2">
+                                <button 
+                                    onClick={() => toggleTaskHistory(task.id)}
+                                    className="text-gray-500 hover:text-gray-700 flex items-center"
+                                >
+                                    <History className="mr-2" /> 
+                                    {expandedHistoryTaskId === task.id ? 'Hide' : 'Show'} Edit History
+                                </button>
+                                
+                                {expandedHistoryTaskId === task.id && (
+                                    <div className="bg-gray-50 p-2 rounded-md mt-2">
+                                        <h4 className="text-sm font-semibold mb-2">Edit History:</h4>
+                                        <ul className="text-xs text-gray-600 space-y-1">
+                                            {task.editHistory.map((entry, index) => (
+                                                <li key={index} className="border-b pb-1 last:border-b-0">
+                                                    {formatEditHistoryEntry(entry)}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                             {editingTask && editingTask.id === task.id ? (
                                 <div>
                                     <input
