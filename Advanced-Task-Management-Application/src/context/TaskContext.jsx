@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
-
 import { createContext, useEffect, useReducer, useState } from 'react';
 import { taskReducer } from '../reducers/taskReducer';
-
 
 export const TaskContext = createContext();
 
@@ -12,13 +10,12 @@ export const TaskProvider = ({ children }) => {
         return localData ? JSON.parse(localData) : [];
     });
     const [filter, setFilter] = useState('all');
-
+    const [editingTask, setEditingTask] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
     useEffect(() => {
-        // Optional: Add error handling
         try {
             localStorage.setItem('tasks', JSON.stringify(tasks));
         } catch (error) {
-            // Handle storage errors (e.g., storage full)
             console.error('Failed to save tasks', error);
         }
     }, [tasks]);
@@ -37,6 +34,25 @@ export const TaskProvider = ({ children }) => {
         });
     };
 
+    const editTask = (task) => {
+        setEditingTask(task);
+    };
+
+    const saveEditedTask = (id, updatedTask) => {
+        dispatch({
+            type: 'UPDATE_TASK',
+            payload: {
+                id,
+                updates: {
+                    title: updatedTask.title,
+                    description: updatedTask.description,
+                    priority: updatedTask.priority
+                }
+            }
+        });
+        setEditingTask(null);
+    };
+
     const deleteTask = (id) => {
         dispatch({ type: 'DELETE_TASK', payload: id });
     };
@@ -45,11 +61,23 @@ export const TaskProvider = ({ children }) => {
         dispatch({ type: 'CLEAR_COMPLETED' });
     };
 
+    // Combine filtering and searching
     const filteredTasks = tasks.filter(task => {
-        if (filter === 'pending') return task.status === 'pending';
-        if (filter === 'completed') return task.status === 'completed';
-        return true;
+        // Filter by status
+        const matchesStatus =
+            filter === 'pending' ? task.status === 'pending' :
+                filter === 'completed' ? task.status === 'completed' :
+                    true;
+
+        // Search logic
+        const matchesSearch = !searchQuery ||
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            task.priority.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesStatus && matchesSearch;
     });
+
 
     return (
         <TaskContext.Provider value={{
@@ -59,10 +87,15 @@ export const TaskProvider = ({ children }) => {
             deleteTask,
             clearCompleted,
             filter,
-            setFilter
+            setFilter,
+            editTask,
+            saveEditedTask,
+            editingTask,
+            setEditingTask,
+            searchQuery,
+            setSearchQuery
         }}>
             {children}
         </TaskContext.Provider>
     );
-
 }
