@@ -35,9 +35,9 @@ function ThemeProvider({ children }) {
         const themeNames = Object.keys(themes);
         // console.log(themeNames);
         const currentIndex = themeNames.indexOf(themeName);
-        console.log("Current Index: "+currentIndex);
+        // console.log("Current Index: "+currentIndex);
         const nextIndex = (currentIndex + 1) % themeNames.length;
-        console.log("Next Index: "+nextIndex);
+        // console.log("Next Index: "+nextIndex);
         setThemeName(themeNames[nextIndex]);
     };
 

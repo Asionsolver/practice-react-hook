@@ -22,13 +22,26 @@ export const themes = {
         text: 'text-green-900',
         primary: 'bg-green-600 text-white',
         secondary: 'bg-green-200 text-green-800'
+    },
+    fire: {
+        background: 'bg-red-100',
+        text: 'text-red-900',
+        primary: 'bg-red-600 text-white',
+        secondary: 'bg-red-200 text-red-800'
     }
+   
 };
 
 // Optional: Theme Type Definitions
 export const ThemeNames = Object.keys(themes);
+// console.log(ThemeNames);
+
+
+
+// Convert Theme Object to Upper Case
 
 // Optional: Theme Validation Function
 export function isValidTheme(themeName) {
+    // return ThemeNames.includes(themeName.toUpperCase());
     return ThemeNames.includes(themeName);
 };
