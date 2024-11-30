@@ -23,20 +23,28 @@ export const TaskProvider = ({ children }) => {
         }
     }, [tasks]);
 
-    const addTask = (title, description, priority) => {
-        dispatch({
-            type: 'ADD_TASK',
-            payload: { title, description, priority }
-        });
-    };
+    const taskActions = {
+        addTask: (title, description, priority) => {
+            dispatch({
+                type: 'ADD_TASK',
+                payload: { title, description, priority }
+            });
+        },
 
-    const updateTask = (id, updates) => {
-        dispatch({
-            type: 'UPDATE_TASK',
-            payload: { id, updates }
-        });
-    };
+        updateTask: (id, updates) => {
+            dispatch({
+                type: 'UPDATE_TASK',
+                payload: { id, updates }
+            });
+        },
+        deleteTask: (id) => {
+            dispatch({ type: 'DELETE_TASK', payload: id });
+        },
 
+        clearCompleted: () => {
+            dispatch({ type: 'CLEAR_COMPLETED' });
+        },
+    };
     const editTask = (task) => {
         setEditingTask(task);
     };
@@ -56,13 +64,7 @@ export const TaskProvider = ({ children }) => {
         setEditingTask(null);
     };
 
-    const deleteTask = (id) => {
-        dispatch({ type: 'DELETE_TASK', payload: id });
-    };
 
-    const clearCompleted = () => {
-        dispatch({ type: 'CLEAR_COMPLETED' });
-    };
 
     // New method to filter edit history
     const filterEditHistory = (editHistory) => {
@@ -114,10 +116,7 @@ export const TaskProvider = ({ children }) => {
     return (
         <TaskContext.Provider value={{
             tasks: filteredTasks,
-            addTask,
-            updateTask,
-            deleteTask,
-            clearCompleted,
+            ...taskActions,
             filter,
             setFilter,
             editTask,

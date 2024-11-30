@@ -6,11 +6,8 @@ import { useState } from 'react';
 const TaskList = () => {
     const {
         tasks,
-        updateTask,
-        deleteTask,
         filter,
         setFilter,
-        clearCompleted,
         editTask,
         editingTask,
         saveEditedTask,
@@ -18,8 +15,11 @@ const TaskList = () => {
         setSearchQuery,
         historySearchQuery,
         setHistorySearchQuery,
-        filterEditHistory
+        filterEditHistory,
+        ...taskActions
     } = useTask();
+
+    const { updateTask, deleteTask, clearCompleted } = taskActions;
 
     const [editedTitle, setEditedTitle] = useState('');
     const [editedDescription, setEditedDescription] = useState('');
@@ -63,6 +63,7 @@ const TaskList = () => {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
+            second: '2-digit',
             hour12: true // 12-hour format
         };
 
@@ -338,7 +339,7 @@ const TaskList = () => {
                                     <div className="text-sm text-gray-400 mt-2">
                                         Priority: {task.priority.toUpperCase()} |
                                         {/* Created: {new Date(task.createdAt).toLocaleString()} */}
-                                        { formatDateTime(task.createdAt, task.lastEditedAt) }
+                                        {formatDateTime(task.createdAt, task.lastEditedAt)}
                                     </div>
                                 </>
                             )}
