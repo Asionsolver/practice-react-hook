@@ -56,20 +56,24 @@ const TaskList = () => {
     };
 
     // Helper function to format date in 12-hour format
-    const formatDateTime = (date, includeTime = true) => {
-        if (!date) return '';
-        const dateObj = new Date(date);
-        const options = {
+    const formatDateTime = (createdAt, lastEditedAt) => {
+        const formatOptions = {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            ...(includeTime && {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            })
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true // 12-hour format
         };
-        return dateObj.toLocaleString(undefined, options);
+
+        const created = new Date(createdAt).toLocaleString(undefined, formatOptions);
+
+        if (lastEditedAt) {
+            const edited = new Date(lastEditedAt).toLocaleString(undefined, formatOptions);
+            return `Created: ${created} | Edited: ${edited}`;
+        }
+
+        return `Created: ${created}`;
     };
 
     // Helper function to format edit history entries
@@ -334,7 +338,7 @@ const TaskList = () => {
                                     <div className="text-sm text-gray-400 mt-2">
                                         Priority: {task.priority.toUpperCase()} |
                                         {/* Created: {new Date(task.createdAt).toLocaleString()} */}
-                                        {formatDateTime(task.createdAt, task.lastEditedAt)}
+                                        { formatDateTime(task.createdAt, task.lastEditedAt) }
                                     </div>
                                 </>
                             )}
