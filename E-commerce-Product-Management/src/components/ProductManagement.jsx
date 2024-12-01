@@ -21,7 +21,7 @@ export const ProductManagement = () => {
         setNewProduct({ name: '', price: '', category: '', stock: '' });
     };
 
-    const formatDateTime = (createdAt, lastEditedAt) => {
+    const formatDateTime = (createdAt) => {
         const formatOptions = {
             year: 'numeric',
             month: 'short',
@@ -33,12 +33,6 @@ export const ProductManagement = () => {
         };
 
         const created = new Date(createdAt).toLocaleString(undefined, formatOptions);
-        // console.log(created);
-
-        // if (lastEditedAt) {
-        //     const edited = new Date(lastEditedAt).toLocaleString(undefined, formatOptions);
-        //     return `Created: ${created} | Edited: ${edited}`;
-        // }
 
         return created;
     };
@@ -63,7 +57,13 @@ export const ProductManagement = () => {
                             type="number"
                             placeholder="Price"
                             value={newProduct.price}
-                            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setNewProduct({ 
+                                    ...newProduct, 
+                                    price: value === '' ? '' : parseFloat(value) 
+                                });
+                            }}
                             className="border p-2 rounded"
                             required
                         />
@@ -82,7 +82,13 @@ export const ProductManagement = () => {
                             type="number"
                             placeholder="Stock"
                             value={newProduct.stock}
-                            onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setNewProduct({ 
+                                    ...newProduct, 
+                                    stock: value === '' ? '' : parseInt(value) 
+                                });
+                            }}
                             className="border p-2 rounded"
                             required
                         />
@@ -140,14 +146,14 @@ export const ProductManagement = () => {
                                 </button>
                                 <button
                                     onClick={() => addToCart(product)}
-                                    className="text-green-500 hover:text-green-600 ml-auto"
+                                    className={` text-black rounded flex items-center justify-center ${product.stock === 0 && 'opacity-50'}`}
                                     disabled={product.stock === 0}
                                 >
                                     <ShoppingCart />
-                                    <p className="absolute bottom-0 right-0 text-xs text-gray-400 p-2 mb-2 rounded">
-                                        {formatDateTime(product.createdAt)}
-                                    </p>
                                 </button>
+                                <p className="absolute bottom-0 right-0 text-xs text-gray-400 p-2 mb-2 rounded">
+                                    {formatDateTime(product.createdAt)}
+                                </p>
 
 
                             </div>

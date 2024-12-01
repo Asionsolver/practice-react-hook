@@ -4,7 +4,6 @@ import { cartReducer } from "../reducers/CartReducers";
 
 
 export const CartContexts = createContext();
-
 export const CartProvider = ({ children }) => {
     const [cart, dispatch] = useReducer(cartReducer, []);
 

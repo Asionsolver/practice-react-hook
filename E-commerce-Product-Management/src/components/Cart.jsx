@@ -17,19 +17,14 @@ const Cart = () => {
         };
 
         const created = new Date(createdAt).toLocaleString(undefined, formatOptions);
-        // console.log(created);
-
-        // if (lastEditedAt) {
-        //     const edited = new Date(lastEditedAt).toLocaleString(undefined, formatOptions);
-        //     return `Created: ${created} | Edited: ${edited}`;
-        // }
+       
 
         return created;
     };
     return (
         <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
             <div className="max-w-2xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6">Shopping Cart</h2>
+                <h2 className="text-2xl font-bold mb-6">Shopping Cart ({cart.length})</h2>
             </div>
 
             {cart.length === 0 ? (
@@ -42,12 +37,16 @@ const Cart = () => {
                             key={item.id || index}
                             className="bg-white p-4 rounded-lg shadow-md mb-4 flex items-center"
                         >
+
                             <div className="flex-grow">
-                                <p className=" absolute right-8 top-20 text-xs mt-1" >{formatDateTime(item.createdAt)}</p>
+
+                                <p className="absolute right-8 -mt-2 text-[8px]" >{formatDateTime(item.createdAt)}</p>
                                 <h3 className="text-lg font-semibold">{item.name}</h3>
                                 <p>Price: ${item.price}</p>
                             </div>
+
                             <div className="flex items-center space-x-2">
+
                                 <button
                                     onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                                     className="text-gray-500"

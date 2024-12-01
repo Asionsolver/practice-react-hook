@@ -44,6 +44,7 @@ export const ProductProvider = ({ children }) => {
             updateProduct,
             deleteProduct,
             filter,
+            setFilter
         }}>
             {children}
         </ProductContext.Provider>
