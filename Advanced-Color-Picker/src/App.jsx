@@ -1,3 +1,4 @@
+import { ColorPicker } from "./components/colorpicker/ColorPicker"
 
 
 function App() {
@@ -5,9 +6,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-red-500">
-        Click on the Vite and React logos to learn more
-      </div>
+      <ColorPicker />
     </>
   )
 }
