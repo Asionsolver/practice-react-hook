@@ -1,13 +1,18 @@
-import { Counter } from "./components/state/Counter";
-import VotingSystem from "./components/state/Hard";
-import Medium from "./components/state/Medium";
+// import { Counter } from "./components/state/Counter";
+// import VotingSystem from "./components/state/Hard";
+// import Medium from "./components/state/Medium";
+
+import Form from "./components/logic/Form";
+import UserProfile from "./components/logic/UserProfile";
 
 function App() {
   return (
     <>
-      <Counter />
+      {/* <Counter />
       <Medium />
-      <VotingSystem />
+      <VotingSystem /> */}
+      <UserProfile />
+      <Form />
     </>
   );
 }
